@@ -1,0 +1,288 @@
+{
+  "info": {
+    "name": "VetAgenda NoSQL API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Colección para probar el proyecto final de Bases de Datos II."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "clienteId",
+      "value": "REEMPLAZAR_CON_ID_CLIENTE"
+    },
+    {
+      "key": "mascotaId",
+      "value": "REEMPLAZAR_CON_ID_MASCOTA"
+    },
+    {
+      "key": "citaId",
+      "value": "REEMPLAZAR_CON_ID_CITA"
+    }
+  ],
+  "item": [
+    {
+      "name": "Salud",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clientes",
+      "item": [
+        {
+          "name": "Listar clientes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clientes?page=1&limit=10&ciudad=Santa%20Tecla&sort=nombre"
+          }
+        },
+        {
+          "name": "Crear cliente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clientes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Andrea\",\n  \"apellido\": \"Pérez\",\n  \"email\": \"andrea.perez@correo.test\",\n  \"telefono\": \"71234567\",\n  \"direccion\": {\n    \"ciudad\": \"Santa Tecla\",\n    \"colonia\": \"El Cafetalón\",\n    \"detalle\": \"Pasaje 2, casa 14\"\n  },\n  \"activo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Obtener cliente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clientes/{{clienteId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mascotas",
+      "item": [
+        {
+          "name": "Listar mascotas con filtro avanzado",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/mascotas?especie=Perro&peso_min=5&vacuna_antes=2026-12-31&sort=-peso_kg&page=1&limit=10"
+          }
+        },
+        {
+          "name": "Crear mascota",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/mascotas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cliente_id\": \"{{clienteId}}\",\n  \"nombre\": \"Bruno\",\n  \"especie\": \"Perro\",\n  \"raza\": \"Mestizo\",\n  \"sexo\": \"Macho\",\n  \"fecha_nacimiento\": \"2024-05-10\",\n  \"peso_kg\": 12.4,\n  \"alergias\": [\n    \"Pollo\"\n  ],\n  \"vacunas\": [],\n  \"activo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Agregar vacuna",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/mascotas/{{mascotaId}}/vacunas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Rabia\",\n  \"fecha_aplicacion\": \"2026-10-31\",\n  \"proxima_dosis\": \"2027-10-31\",\n  \"lote\": \"RAB-2026-88\",\n  \"veterinario\": \"Dra. Elena Rivas\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Obtener mascota con propietario",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/mascotas/{{mascotaId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Citas",
+      "item": [
+        {
+          "name": "Listar agenda filtrada",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/citas?desde=2026-10-01&hasta=2026-11-30&sort=fecha_hora&page=1&limit=20"
+          }
+        },
+        {
+          "name": "Crear cita (valida conflicto)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/citas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mascota_id\": \"{{mascotaId}}\",\n  \"fecha_hora\": \"2026-11-10T15:00:00-06:00\",\n  \"duracion_min\": 30,\n  \"motivo\": \"Consulta general\",\n  \"veterinario\": {\n    \"id\": \"VET-001\",\n    \"nombre\": \"Dra. Elena Rivas\",\n    \"especialidad\": \"Medicina general\"\n  },\n  \"costo\": 25\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Cambiar estado de cita",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/citas/{{citaId}}/estado",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"confirmada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Agenda del día + vacunas próximas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/citas/agenda/dia?fecha=2026-10-31&dias_vacunas=14"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reportes",
+      "item": [
+        {
+          "name": "Reporte de vacunas próximas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reportes/vacunas-proximas?dias=90",
+            "body": {
+              "mode": "raw",
+              "raw": "\"Aggregation con $unwind, $match, $lookup, $group, $project y $sort.\"",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Reporte mensual de citas e ingresos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reportes/citas-mensuales"
+          }
+        }
+      ]
+    }
+  ]
+}

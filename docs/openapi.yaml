@@ -1,0 +1,69 @@
+openapi: 3.0.3
+info:
+  title: VetAgenda NoSQL API
+  version: 1.0.0
+  description: API REST de agenda veterinaria y control de vacunas sobre MongoDB.
+servers:
+  - url: http://localhost:3000
+paths:
+  /health:
+    get:
+      summary: Verifica que la API esté activa
+      responses:
+        '200': { description: OK }
+  /api/clientes:
+    get:
+      summary: Lista clientes con filtros y paginación
+      parameters:
+        - { in: query, name: page, schema: { type: integer } }
+        - { in: query, name: limit, schema: { type: integer } }
+        - { in: query, name: ciudad, schema: { type: string } }
+        - { in: query, name: q, schema: { type: string } }
+        - { in: query, name: sort, schema: { type: string } }
+      responses:
+        '200': { description: Lista paginada }
+    post:
+      summary: Crea un cliente
+      responses:
+        '201': { description: Cliente creado }
+  /api/mascotas:
+    get:
+      summary: Lista mascotas usando filtros avanzados
+      responses:
+        '200': { description: Lista paginada }
+    post:
+      summary: Crea una mascota referenciada a un cliente
+      responses:
+        '201': { description: Mascota creada }
+  /api/mascotas/{id}/vacunas:
+    post:
+      summary: Agrega una vacuna embebida al historial de la mascota
+      parameters:
+        - { in: path, name: id, required: true, schema: { type: string } }
+      responses:
+        '201': { description: Vacuna agregada }
+  /api/citas:
+    get:
+      summary: Lista citas por rango de fechas, estado, cliente, mascota o veterinario
+      responses:
+        '200': { description: Lista paginada }
+    post:
+      summary: Programa una cita validando conflictos de horario
+      responses:
+        '201': { description: Cita creada }
+        '409': { description: Conflicto de agenda }
+  /api/citas/agenda/dia:
+    get:
+      summary: Devuelve citas del día y próximas dosis de vacuna
+      responses:
+        '200': { description: Agenda integrada }
+  /api/reportes/vacunas-proximas:
+    get:
+      summary: Aggregation pipeline de vacunas próximas agrupadas por especie y vacuna
+      responses:
+        '200': { description: Reporte de vacunas }
+  /api/reportes/citas-mensuales:
+    get:
+      summary: Reporte mensual de cantidad de citas, ingresos y ticket promedio
+      responses:
+        '200': { description: Reporte mensual }

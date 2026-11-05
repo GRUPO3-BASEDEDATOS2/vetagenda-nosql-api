@@ -123,7 +123,7 @@ Al crear una cita se buscan citas activas de la misma mascota o del mismo veteri
 | Citas | `POST /api/citas` |
 | | `GET /api/citas?desde=2026-10-01&hasta=2026-10-31&estado=confirmada&sort=fecha_hora` |
 | | `PATCH /api/citas/:id/estado` |
-| | `GET /api/citas/agenda/dia?fecha=2026-10-31&dias_vacunas=7` |
+| | `GET /api/citas/agenda/dia?fecha=2026-10-15&dias_vacunas=7` |
 | Reportes | `GET /api/reportes/vacunas-proximas?dias=30` |
 | | `GET /api/reportes/citas-mensuales` |
 

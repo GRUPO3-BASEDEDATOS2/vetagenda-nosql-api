@@ -52,7 +52,7 @@ Los `_id` se regeneran con cada carga del seed. Se obtienen de las respuestas de
 | Listar agenda filtrada | `GET /api/citas?desde=2026-10-01&hasta=2026-11-30&sort=fecha_hora` | Rango de fechas, paginación y orden |
 | Crear cita (valida conflicto) | `POST /api/citas` | `409` ante cruce de horario de mascota o veterinario |
 | Cambiar estado de cita | `PATCH /api/citas/{{citaId}}/estado` | Estados: `programada`, `confirmada`, `completada`, `cancelada`, `no_asistio` |
-| Agenda del día y vacunas próximas | `GET /api/citas/agenda/dia?fecha=2026-10-31&dias_vacunas=14` | Citas del día y vacunas por vencer en una respuesta |
+| Agenda del día y vacunas próximas | `GET /api/citas/agenda/dia?fecha=2026-10-15&dias_vacunas=14` | Citas del día y vacunas por vencer en una respuesta |
 
 ### Reportes
 

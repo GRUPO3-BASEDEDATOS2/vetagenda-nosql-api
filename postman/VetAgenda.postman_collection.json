@@ -239,7 +239,7 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{baseUrl}}/api/citas/agenda/dia?fecha=2026-10-31&dias_vacunas=14"
+            "url": "{{baseUrl}}/api/citas/agenda/dia?fecha=2026-10-15&dias_vacunas=14"
           }
         }
       ]

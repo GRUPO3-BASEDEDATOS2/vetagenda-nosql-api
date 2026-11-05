@@ -78,7 +78,7 @@ Secuencia de verificación:
 
 1. Volumen de datos: `GET /api/clientes?limit=5`, `GET /api/mascotas?limit=5`, `GET /api/citas?limit=5`.
 2. Filtro avanzado: `GET /api/mascotas?especie=Perro&peso_min=5&vacuna_antes=2026-12-31&sort=-peso_kg`.
-3. Agenda integrada: `GET /api/citas/agenda/dia?fecha=2026-10-31&dias_vacunas=14`.
+3. Agenda integrada: `GET /api/citas/agenda/dia?fecha=2026-10-15&dias_vacunas=14`.
 4. Reporte con aggregation: `GET /api/reportes/vacunas-proximas?dias=90`.
 5. Reporte mensual: `GET /api/reportes/citas-mensuales`.
 6. Regla de conflicto: dos envíos idénticos de `POST /api/citas`; el segundo responde `409 Conflict`.

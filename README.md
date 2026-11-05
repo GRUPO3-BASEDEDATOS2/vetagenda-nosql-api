@@ -139,7 +139,7 @@ Al crear una cita se buscan citas activas de la misma mascota o del mismo veteri
 ```
 src/        API: aplicación, conexión, rutas y utilidades
 scripts/    init-db.js (validadores e índices) y seed.js
-docs/       Get Started, documentación en PDF y OpenAPI
+docs/       Get Started y OpenAPI
 postman/    Colección de Postman y su documentación
 Dockerfile
 docker-compose.yml

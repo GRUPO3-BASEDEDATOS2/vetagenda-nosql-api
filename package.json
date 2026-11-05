@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "node --watch src/app.js",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
     "db:init": "node scripts/init-db.js",
     "seed": "node scripts/seed.js",
     "setup": "npm run db:init && npm run seed",

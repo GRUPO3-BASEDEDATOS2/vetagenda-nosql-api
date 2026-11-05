@@ -23,8 +23,10 @@ Stack: Node.js 22, Express 5, driver oficial `mongodb` 7, MongoDB 7, Docker Comp
 ### Con Docker
 
 ```bash
-docker compose up --build
+npm run docker:up
 ```
+
+Equivale a `docker compose up --build`. Para detener: `npm run docker:down`.
 
 Levanta MongoDB, aplica validadores e índices, carga el seed e inicia la API en `http://localhost:3000`.
 

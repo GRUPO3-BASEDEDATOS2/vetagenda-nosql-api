@@ -25,8 +25,10 @@ Definidas en `.env`, a partir de `.env.example`. En la Opción A las inyecta `do
 ## 3. Opción A: Docker
 
 ```bash
-docker compose up --build
+npm run docker:up
 ```
+
+Equivale a `docker compose up --build`.
 
 Servicios, en orden de arranque:
 
@@ -36,7 +38,7 @@ Servicios, en orden de arranque:
 
 El seed elimina y recrea los datos de las tres colecciones en cada ejecución de `docker compose up`.
 
-Detención: `docker compose down`. La opción `-v` elimina además el volumen de datos.
+Detención: `npm run docker:down` (equivale a `docker compose down`). Para eliminar además el volumen de datos: `npm run docker:down -- -v`.
 
 ## 4. Opción B: ejecución local
 
@@ -53,6 +55,8 @@ npm start
 |---|---|
 | `npm start` | Inicia la API |
 | `npm run dev` | Inicia la API con recarga automática |
+| `npm run docker:up` | Levanta MongoDB, `setup` y la API con Docker |
+| `npm run docker:down` | Detiene los contenedores |
 | `npm run db:init` | Crea colecciones, `$jsonSchema` e índices |
 | `npm run seed` | Carga 60 clientes, 80 mascotas y 100 citas |
 | `npm run setup` | Ejecuta `db:init` y `seed` |

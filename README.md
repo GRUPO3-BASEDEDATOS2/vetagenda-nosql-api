@@ -1,33 +1,36 @@
 # VetAgenda NoSQL
 
-Proyecto final de Bases de Datos II: API REST para una veterinaria con agenda de citas, control de vacunas y reportes sobre MongoDB.
+Proyecto final de Bases de Datos II (no relacionales). API REST sobre MongoDB para la gestión de una clínica veterinaria: clientes, mascotas, historial de vacunas, agenda de citas y reportes analíticos.
 
-## 1. Qué resuelve
+Instrucciones de instalación y ejecución: [Get Started](docs/GET_STARTED.md).
 
-El sistema permite:
-- Registrar clientes y mascotas.
-- Mantener el historial de vacunas dentro de cada mascota.
-- Programar citas y bloquear cruces de horario para la misma mascota o veterinario.
-- Consultar la agenda por fecha, estado, cliente, mascota o veterinario.
-- Filtrar mascotas por especie, peso y próxima dosis de vacuna.
-- Mostrar una agenda diaria que mezcla citas y vacunas próximas.
-- Generar reportes por aggregation pipeline: vacunas próximas y resumen mensual de citas/ingresos.
+## Resumen
 
-## 2. Modelo NoSQL
+Funcionalidades:
 
-Colecciones principales:
-1. `clientes`
-2. `mascotas`
-3. `citas`
+- Registro de clientes y mascotas.
+- Historial de vacunas embebido en cada mascota.
+- Programación de citas con detección de cruces de horario por mascota y por veterinario.
+- Consulta de citas por fecha, estado, cliente, mascota o veterinario.
+- Filtrado de mascotas por especie, peso y próxima dosis de vacuna.
+- Agenda diaria con citas y vacunas próximas.
+- Reportes mediante aggregation pipeline: vacunas próximas y resumen mensual de citas e ingresos.
 
-La base usa `$jsonSchema` en las tres colecciones. Las vacunas se embeben en `mascotas`; las relaciones cliente-mascota y cita-mascota/cliente se manejan con referencias `ObjectId`.
+Stack: Node.js 22, Express 5, driver oficial `mongodb` 7, MongoDB 7, Docker Compose.
 
-## 3. Requisitos
+## Ejecución
 
-- Node.js 22.9+ y npm 11.21.1+ (`npm i -g npm@11.21.1`)
-- MongoDB 7+ o Docker Desktop
+### Con Docker
 
-## 4. Inicio rápido con MongoDB local
+```bash
+docker compose up --build
+```
+
+Levanta MongoDB, aplica validadores e índices, carga el seed e inicia la API en `http://localhost:3000`.
+
+### Sin Docker
+
+Requiere MongoDB en ejecución, Node.js 22.9 o superior y npm 11.21.1 o superior.
 
 ```bash
 cp .env.example .env
@@ -36,71 +39,114 @@ npm run setup
 npm start
 ```
 
-La API quedará en `http://localhost:3000`.
+### Variables de entorno
 
-## 5. Inicio con Docker
+Archivo `.env.example`:
 
-```bash
-docker compose up --build
+```env
+PORT=3000
+MONGODB_URI=mongodb://localhost:27017
+MONGODB_DB=veterinaria_nosql
 ```
 
-El `docker-compose.yml` espera a que MongoDB esté saludable, ejecuta automáticamente validadores + seed y después inicia la API.
+| Variable | Descripción |
+|---|---|
+| `PORT` | Puerto de la API |
+| `MONGODB_URI` | Cadena de conexión a MongoDB |
+| `MONGODB_DB` | Nombre de la base de datos |
 
-## 6. Datos de prueba
+## Documentación breve
 
-`npm run seed` crea datos ficticios reproducibles:
-- 60 clientes
-- 80 mascotas
-- 100 citas
+### Justificación del modelo
 
-Así se cumple el volumen mínimo solicitado para probar filtros y agregaciones.
+MongoDB se adecua al caso por la combinación de subestructuras propias de una entidad (vacunas, dirección, veterinario) y entidades de crecimiento independiente (citas). El modelo de documentos permite recuperar una mascota con su historial de vacunas en una sola lectura; las referencias evitan duplicar datos de contacto.
 
-## 7. Endpoints principales
+### Decisiones de diseño
 
-### Clientes
-- `POST /api/clientes`
-- `GET /api/clientes?page=1&limit=10&ciudad=Santa%20Tecla&q=ana&sort=nombre`
-- `GET /api/clientes/:id`
+| Colección | Estructura | Justificación |
+|---|---|---|
+| `clientes` | `direccion` embebida. Referenciado desde `mascotas` y `citas` | Un cliente posee varias mascotas; duplicar sus datos de contacto implicaría actualizaciones en múltiples documentos. La dirección solo se consulta junto al cliente |
+| `mascotas` | `vacunas` embebidas. `cliente_id` referenciado | Las vacunas forman parte del historial de la mascota, se leen con ella, tienen estructura pequeña y estable, y no se consultan de forma aislada |
+| `citas` | `veterinario` embebido como snapshot. `mascota_id` y `cliente_id` referenciados | Es la colección de mayor crecimiento y se consulta por fecha, estado, mascota y veterinario, por lo que requiere colección e índices propios. El snapshot conserva el dato histórico sin una cuarta colección |
 
-### Mascotas
-- `POST /api/mascotas`
-- `GET /api/mascotas?especie=Perro&peso_min=5&vacuna_antes=2026-12-31&sort=-peso_kg`
-- `GET /api/mascotas/:id`
-- `PATCH /api/mascotas/:id`
-- `POST /api/mascotas/:id/vacunas`
+### Validación `$jsonSchema`
 
-### Citas
-- `POST /api/citas`
-- `GET /api/citas?desde=2026-10-01&hasta=2026-10-31&estado=confirmada&sort=fecha_hora`
-- `PATCH /api/citas/:id/estado`
-- `GET /api/citas/agenda/dia?fecha=2026-10-31&dias_vacunas=7`
+`scripts/init-db.js` crea las colecciones con `validationLevel: strict` y `validationAction: error`.
 
-### Reportes
-- `GET /api/reportes/vacunas-proximas?dias=30`
-- `GET /api/reportes/citas-mensuales`
+- `clientes`: nombre, apellido, correo con formato válido, teléfono, dirección, estado y fecha de creación.
+- `mascotas`: `cliente_id` como `ObjectId`, especie y sexo dentro de una lista cerrada, peso mayor que 0 y vacunas con fechas válidas.
+- `citas`: código, referencias `ObjectId`, duración entre 15 y 180 minutos, estado permitido, veterinario y costo no negativo.
 
-## 8. Lógica de negocio relevante
+### Índices
 
-Al crear una cita, la API busca citas activas del mismo veterinario o de la misma mascota alrededor de la fecha solicitada y compara intervalos según `duracion_min`. Si existe cruce, responde `409 Conflict` y no inserta la cita.
+| Colección | Índice | Motivo |
+|---|---|---|
+| `clientes` | `email` (único) | Unicidad de correo |
+| `clientes` | `direccion.ciudad`, `activo` | Filtro por ciudad y estado |
+| `mascotas` | `cliente_id`, `activo` | Mascotas por propietario |
+| `mascotas` | `especie`, `peso_kg` | Filtros combinados |
+| `mascotas` | `vacunas.proxima_dosis` | Recordatorios de vacunación |
+| `citas` | `codigo` (único) | Identificador de la cita |
+| `citas` | `fecha_hora`, `estado` | Agenda diaria y rangos de fecha |
+| `citas` | `mascota_id`, `fecha_hora` | Historial y detección de cruces |
+| `citas` | `cliente_id`, `fecha_hora` | Historial del cliente |
+| `citas` | `veterinario.id`, `fecha_hora` | Agenda del veterinario y detección de cruces |
 
-La agenda diaria combina:
-- citas del día ordenadas por hora;
-- vacunas cuya próxima dosis cae dentro de una ventana configurable.
+### Consultas
 
-## 9. Consultas avanzadas
+Los listados admiten operadores de comparación (`$gte`, `$lte`), lógicos (`$or`, `$in`, `$nin`), búsqueda por texto (`$regex`, con escape de caracteres especiales), filtros sobre subdocumentos (`direccion.ciudad`) y arreglos (`$elemMatch` sobre `vacunas`), junto con paginación (`page`, `limit`) y ordenamiento (`sort`).
 
-Se utilizan filtros con `$gte`, `$lte`, `$elemMatch`, `$regex`, `$or`, `$in` y `$nin`, además de paginación y ordenamiento.
+### Aggregation pipeline
 
-El reporte de vacunas próximas usa una aggregation pipeline con:
-- `$unwind`
-- `$match`
-- `$lookup`
-- `$group`
-- `$project`
-- `$sort`
+`GET /api/reportes/vacunas-proximas`: `$unwind` → `$match` → `$lookup` → `$group` → `$project` → `$sort`. Agrupa por especie y vacuna, con total de mascotas y fecha más cercana.
 
-## 10. Pruebas
+`GET /api/reportes/citas-mensuales`: agrupa por año y mes; devuelve cantidad de citas, ingresos y ticket promedio.
 
-Importe `docs/VetAgenda.postman_collection.json` en Postman (la especificación OpenAPI está en `docs/openapi.yaml`). Las peticiones de lectura y reportes funcionan después de ejecutar `npm run setup`.
+### Regla de negocio
 
-Para crear citas o vacunas nuevas, copie un `_id` real de las respuestas de clientes/mascotas y colóquelo en las variables de la colección de Postman.
+Al crear una cita se buscan citas activas de la misma mascota o del mismo veterinario cercanas a la fecha solicitada y se comparan los intervalos (`fecha_hora` y `duracion_min`). Ante un solapamiento se responde `409 Conflict` y no se inserta el documento.
+
+## Endpoints
+
+| Recurso | Método y ruta |
+|---|---|
+| Clientes | `POST /api/clientes` |
+| | `GET /api/clientes?page=1&limit=10&ciudad=Santa%20Tecla&q=ana&sort=nombre` |
+| | `GET /api/clientes/:id` |
+| Mascotas | `POST /api/mascotas` |
+| | `GET /api/mascotas?especie=Perro&peso_min=5&vacuna_antes=2026-12-31&sort=-peso_kg` |
+| | `GET /api/mascotas/:id` |
+| | `PATCH /api/mascotas/:id` |
+| | `POST /api/mascotas/:id/vacunas` |
+| Citas | `POST /api/citas` |
+| | `GET /api/citas?desde=2026-10-01&hasta=2026-10-31&estado=confirmada&sort=fecha_hora` |
+| | `PATCH /api/citas/:id/estado` |
+| | `GET /api/citas/agenda/dia?fecha=2026-10-31&dias_vacunas=7` |
+| Reportes | `GET /api/reportes/vacunas-proximas?dias=30` |
+| | `GET /api/reportes/citas-mensuales` |
+
+## Datos de prueba
+
+`scripts/seed.js` genera datos ficticios reproducibles: 60 clientes, 80 mascotas y 100 citas, con vacunas en distintas fechas y citas distribuidas en varios meses, estados y veterinarios.
+
+## Pruebas de la API
+
+- Colección de Postman: [postman/](postman/README.md)
+- Especificación OpenAPI: [docs/openapi.yaml](docs/openapi.yaml)
+
+## Estructura del repositorio
+
+```
+src/        API: aplicación, conexión, rutas y utilidades
+scripts/    init-db.js (validadores e índices) y seed.js
+docs/       Get Started, documentación en PDF y OpenAPI
+postman/    Colección de Postman y su documentación
+Dockerfile
+docker-compose.yml
+```
+
+## Equipo
+
+- Diego Fernando Duran Figueroa
+- Juan David Molina Ruano
+- Roberto Enrique Escobar Henriquez

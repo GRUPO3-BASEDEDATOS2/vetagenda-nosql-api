@@ -1,0 +1,44 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: vetagenda-mongo
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "process.exit(db.adminCommand('ping').ok === 1 ? 0 : 1)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  setup:
+    build: .
+    container_name: vetagenda-setup
+    environment:
+      MONGODB_URI: mongodb://mongo:27017
+      MONGODB_DB: veterinaria_nosql
+    command: ["npm", "run", "setup"]
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build: .
+    container_name: vetagenda-api
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      MONGODB_URI: mongodb://mongo:27017
+      MONGODB_DB: veterinaria_nosql
+    ports:
+      - "3000:3000"
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+
+volumes:
+  mongo_data:

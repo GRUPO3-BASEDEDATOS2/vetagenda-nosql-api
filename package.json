@@ -12,7 +12,6 @@
     "check": "node --check src/app.js && node --check src/routes/clientes.js && node --check src/routes/mascotas.js && node --check src/routes/citas.js && node --check src/routes/reportes.js && node --check scripts/init-db.js && node --check scripts/seed.js"
   },
   "dependencies": {
-    "cors": "2.8.6",
     "dotenv": "18.0.9",
     "express": "5.3.0",
     "mongodb": "7.8.0"

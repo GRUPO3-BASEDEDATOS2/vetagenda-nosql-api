@@ -1,6 +1,5 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
 const { connectDb } = require('./db');
 const clientes = require('./routes/clientes');
 const mascotas = require('./routes/mascotas');
@@ -8,7 +7,6 @@ const citas = require('./routes/citas');
 const reportes = require('./routes/reportes');
 
 const app = express();
-app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 app.use((req, res, next) => { req.body ??= {}; next(); });
 

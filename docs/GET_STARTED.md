@@ -103,5 +103,6 @@ Ejemplo de cuerpo para `POST /api/citas`:
 | `Unsupported engine` al instalar | npm desactualizado. Ejecutar `npm i -g npm@11.21.1` |
 | `npm install` no resuelve una versión | `.npmrc` exige una antigüedad mínima de 1 día por versión (`min-release-age=1`) |
 | `No fue posible conectar con MongoDB` | MongoDB no está en ejecución o `MONGODB_URI` es incorrecta |
+| `port is already allocated` o `bind: Only one usage of each socket address` al levantar con Docker | El puerto 27017 del equipo ya lo usa otro MongoDB. Usar otro puerto: `MONGO_PORT=27018 npm run docker:up` (en PowerShell: `$env:MONGO_PORT=27018; npm run docker:up`). Con la API dentro de Docker no cambia nada más |
 | Los datos creados desaparecen | El seed reemplaza los datos en cada `docker compose up` y `npm run setup` |
 | Error `400` por `$jsonSchema` | El documento incumple las reglas de validación de la colección |
